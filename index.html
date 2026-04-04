@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroids en JS</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <canvas></canvas>
+</body>
+
+<script>
+    const canvas = document.querySelector('canvas');
+    const context = canvas.getContext('2d');
+
+    console.log('Carga de tablero');
+    canvas.width = 1000;
+    canvas.height = 800;
+
+    const positionXShip = Math.round(canvas.width/2);
+    const positionYShip = Math.round(canvas.height/2);
+    const radiuShip = 4;
+
+    function drawSpaceship(){
+        context.beginPath();
+        // Dibujar vertice superior
+        context.moveTo(positionXShip, positionYShip - 40);
+        // Dibujar vertice inferior derecho e izquierdo
+        context.lineTo(positionXShip - 15, positionYShip);
+        context.lineTo(positionXShip + 15, positionYShip);
+        // Rellenar el circulo
+        context.fill();
+        // Pintarlo
+        context.fillStyle = 'black';
+
+        
+        context.beginPath();
+        context.moveTo(positionXShip, positionYShip - 10);
+        context.lineTo(positionXShip - 5, positionYShip);
+        context.lineTo(positionXShip + 5, positionYShip);
+        context.closePath();
+        context.fill();
+        context.fillStyle = '#fff';
+    }
+
+    function drawRocks(){
+
+    }
+
+    function countPlayerLife(){
+
+    };
+
+    // actualiza y guarda el estado anterior
+    function draw (){
+        // Dibujo de la nave espacial
+        drawSpaceship();
+        // Dibujo de las rocas o asteroides
+        drawRocks();
+
+        // Dibujar la vida de un jugador
+        countPlayerLife();
+        // Ejecuta  constantemente cada 60 segundos el repintado o la funcion de forma recursiva
+        window.requestAnimationFrame(draw);
+    }
+
+    draw();
+</script>
+
+</html>
