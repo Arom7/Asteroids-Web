@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <h1>Asteroids</h1>
     <canvas></canvas>
 </body>
 
@@ -14,37 +15,57 @@
     const canvas = document.querySelector('canvas');
     const context = canvas.getContext('2d');
 
-    console.log('Carga de tablero');
+    // Carga del tablero inicial
     canvas.width = 1000;
-    canvas.height = 800;
+    canvas.height = 900;
 
     const positionXShip = Math.round(canvas.width/2);
     const positionYShip = Math.round(canvas.height/2);
-    const radiuShip = 4;
+    const heightShip = 50;
+    const widthShip = 15;
 
     function drawSpaceship(){
-        context.beginPath();
-        // Dibujar vertice superior
-        context.moveTo(positionXShip, positionYShip - 40);
-        // Dibujar vertice inferior derecho e izquierdo
-        context.lineTo(positionXShip - 15, positionYShip);
-        context.lineTo(positionXShip + 15, positionYShip);
-        // Rellenar el circulo
-        context.fill();
-        // Pintarlo
-        context.fillStyle = 'black';
-
-        
-        context.beginPath();
-        context.moveTo(positionXShip, positionYShip - 10);
-        context.lineTo(positionXShip - 5, positionYShip);
-        context.lineTo(positionXShip + 5, positionYShip);
-        context.closePath();
-        context.fill();
-        context.fillStyle = '#fff';
+        // Seccion mas grande
+        drawSectionShip(heightShip, widthShip, 'black');
+        // Generar seccion mas pequenia
+        drawSectionShip(heightShip/5 , widthShip/3 , '#fff');
     }
 
+    // Dibujo de naves y rocas
+
     function drawRocks(){
+        for(let i = 0 ; i < 4 ; i++){
+            let positionRockX = generatePositionInitial(canvas.width);
+            let positionRockY = generatePositionInitial(canvas.height);
+            context.beginPath();
+            context.strokeStyle = '#fff';
+            context.strokeRect(positionRockX, positionRockY, 100, 100);
+            context.closePath();
+        }
+    }
+
+    function drawSectionShip(height , width , color){
+        context.beginPath();
+        // Dibujar vertice superior
+        context.moveTo(positionXShip, positionYShip - height);
+        // Dibujar vertice inferior derecho e izquierdo
+        context.lineTo(positionXShip - width, positionYShip);
+        context.lineTo(positionXShip + width, positionYShip);
+        context.fill();
+        context.fillStyle = `${color}`;
+    }
+
+    function generatePositionInitial(param){
+        let position = Math.floor(Math.random() * param) + 1;
+        console.log(position);
+        if(position > positionXShip + 100 || position < positionXShip - 100){
+            return position;
+        }else{
+            generatePositionInitial(param);
+        }
+    }
+
+    function moveRocks(){
 
     }
 
@@ -56,15 +77,16 @@
     function draw (){
         // Dibujo de la nave espacial
         drawSpaceship();
-        // Dibujo de las rocas o asteroides
-        drawRocks();
-
+        // Movimiento constante de las rocas
+        moveRocks();
         // Dibujar la vida de un jugador
         countPlayerLife();
         // Ejecuta  constantemente cada 60 segundos el repintado o la funcion de forma recursiva
         window.requestAnimationFrame(draw);
     }
 
+    // Dibujo de las rocas o asteroides
+    drawRocks();
     draw();
 </script>
 
