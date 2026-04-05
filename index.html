@@ -1,50 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Asteroids en JS</title>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <h1>Asteroids</h1>
-    <canvas></canvas>
-</body>
+    <link rel="stylesheet" href="css/styles.css" />
 
-<script>
-    const canvas = document.querySelector('canvas');
-    const context = canvas.getContext('2d');
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abel&family=Krona+One&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  </head>
+  <body>
+    <header class="press-start-2p-regular">
+        <h1>Juego Asteroids</h1>
+        <div class="score">
+            <h3>Score: </h3>
+            <h3>Cantidad de vidas:</h3>
+        </div>
+    </header>
+    <canvas></canvas>
+  </body>
+
+  <script>
+    const canvas = document.querySelector("canvas");
+    const context = canvas.getContext("2d");
 
     // Carga del tablero inicial
-    canvas.width = 1000;
-    canvas.height = 900;
-
-    const positionXShip = Math.round(canvas.width/2);
-    const positionYShip = Math.round(canvas.height/2);
+    canvas.width = 1600;
+    canvas.height = 1000;
+    //Posicion de la nave inicial
+    const positionXShip = Math.round(canvas.width / 2);
+    const positionYShip = Math.round(canvas.height / 2);
+    // Dimensiones de la nave
     const heightShip = 50;
     const widthShip = 15;
+    
+    // Cantidad rocas iniciales
+    const quantityRocks = 4;
+    // Velocidad -> variables constante
+    const velocity = 0.7;
+    // Posiciones de las rocas
+    var positions = [[]];
+    // Velocidad de cada roca
+    var speeds = [[]]
 
-    function drawSpaceship(){
+    function drawSpaceship() {
         // Seccion mas grande
-        drawSectionShip(heightShip, widthShip, 'black');
+        drawSectionShip(heightShip, widthShip, "black");
         // Generar seccion mas pequenia
-        drawSectionShip(heightShip/5 , widthShip/3 , '#fff');
+        drawSectionShip(heightShip / 5, widthShip / 3, "#fff");
     }
 
     // Dibujo de naves y rocas
-
-    function drawRocks(){
-        for(let i = 0 ; i < 4 ; i++){
-            let positionRockX = generatePositionInitial(canvas.width);
-            let positionRockY = generatePositionInitial(canvas.height);
+    function drawRocks() {
+        for (let i = 0; i < quantityRocks; i++) {
+            let positionRockX = positions[[i, 0]];
+            let positionRockY = positions[[i, 1]];
             context.beginPath();
-            context.strokeStyle = '#fff';
+            context.strokeStyle = "#fff";
             context.strokeRect(positionRockX, positionRockY, 100, 100);
+            positions[[i, 0]] += speeds[[i, 0]];
+            positions[[i, 1]] += speeds[[i, 1]];
             context.closePath();
         }
     }
 
-    function drawSectionShip(height , width , color){
+    function drawSectionShip(height, width, color) {
         context.beginPath();
         // Dibujar vertice superior
         context.moveTo(positionXShip, positionYShip - height);
@@ -55,39 +77,69 @@
         context.fillStyle = `${color}`;
     }
 
-    function generatePositionInitial(param){
-        let position = Math.floor(Math.random() * param) + 1;
-        console.log(position);
-        if(position > positionXShip + 100 || position < positionXShip - 100){
-            return position;
-        }else{
-            generatePositionInitial(param);
-        }
+    function countPlayerLife() {}
+
+    function clearCanvas() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
     }
-
-    function moveRocks(){
-
-    }
-
-    function countPlayerLife(){
-
-    };
 
     // actualiza y guarda el estado anterior
-    function draw (){
+    function draw() {
+        // Limpieza del canvas
+        clearCanvas();
         // Dibujo de la nave espacial
         drawSpaceship();
-        // Movimiento constante de las rocas
-        moveRocks();
+        // Dibujo de las rocas o asteroides
+        drawRocks();
+
+        /*
+        setTimeout(() => {
+            console.log("Esto aparece tras 3 segundos");
+        }, 3000);
+        */
+
         // Dibujar la vida de un jugador
         countPlayerLife();
         // Ejecuta  constantemente cada 60 segundos el repintado o la funcion de forma recursiva
         window.requestAnimationFrame(draw);
     }
 
-    // Dibujo de las rocas o asteroides
-    drawRocks();
-    draw();
-</script>
+    // Posiciones iniciales de las rocas
+    function generatePositionInitialRock(param) {
+        let position = Math.floor(Math.random() * param) + 1;
+        if (position > positionXShip + 100 || position < positionXShip - 100) {
+            console.log('Posicion limpia:' + position);
+            return position;
+        } else {
+            return generatePositionInitialRock(param);
+        }
+    }
+    
+    // Generar posiciones y velocidades
+    function calculateVelocityAndPositionInitial(){
+        for (var i = 0; i < quantityRocks; i++) {  
+            for (let j = 0; j <= 1; j++) {
+                if( j % 2 == 0){
+                    positions[[i, j]] = generatePositionInitialRock(canvas.width);
+                    if(positions [[i , j]]  < positionXShip){
+                        speeds[[i, j]] = velocity;
+                    }else{
+                        speeds[[i, j]] = velocity * (-1);
+                    }
+                }else{
+                    positions[[i, j]] = generatePositionInitialRock(canvas.height);
+                    if(positions [[i , j]]  < positionYShip){
+                        speeds[[i, j]] = velocity;
+                    }else{
+                        speeds[[i, j]] = velocity * (-1);
+                    }
+                }
+            }
+        }
+    }
 
+    calculateVelocityAndPositionInitial();
+    draw();
+
+</script>
 </html>
