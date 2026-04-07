@@ -37,9 +37,9 @@
     const widthShip = 15;
     
     // Cantidad rocas iniciales
-    const quantityRocks = 4;
+    const quantityRocks = 8;
     // Velocidad -> variables constante
-    const velocity = 0.7;
+    const velocity = 1;
     // Posiciones de las rocas
     var positions = [[]];
     // Velocidad de cada roca
@@ -62,6 +62,7 @@
             context.strokeRect(positionRockX, positionRockY, 100, 100);
             positions[[i, 0]] += speeds[[i, 0]];
             positions[[i, 1]] += speeds[[i, 1]];
+            verifyLimits(i , positions[[i, 0]] , positions[[i, 1]]);
             context.closePath();
         }
     }
@@ -135,6 +136,23 @@
                     }
                 }
             }
+        }
+    }
+
+    // Verificacion de limites en cada roca y su respectiva posicion
+    function verifyLimits(numberRock, posX , posY ){
+        // Para posicion en X
+        if(posX < 0){
+            positions[[numberRock, 0]] += canvas.width;
+            console.log(positions[[numberRock, 0]]);
+        }else if(posX > canvas.width){
+            positions[[numberRock, 0]] -= canvas.width;
+        }
+        // Para posicion en Y
+        if(posY < 0){
+            positions[[numberRock, 1]] += canvas.height;
+        }else if(posY > canvas.height){
+            positions[[numberRock, 1]] -= canvas.height;
         }
     }
 
