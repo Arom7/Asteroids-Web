@@ -1,41 +1,45 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Asteroids en JS</title>
-    <link rel="stylesheet" href="css/styles.css" />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Asteroids en JS</title>
+        <link rel="stylesheet" href="css/styles.css" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Abel&family=Krona+One&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Press+Start+2P&display=swap" rel="stylesheet">
-
-  </head>
-  <body>
-    <header class="press-start-2p-regular">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+        href="https://fonts.googleapis.com/css2?family=Abel&family=Krona+One&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Press+Start+2P&display=swap"
+        rel="stylesheet"
+        />
+    </head>
+    <body>
+        <header class="press-start-2p-regular">
         <h1>Juego Asteroids</h1>
         <div class="score">
-            <h3>Score: </h3>
+            <h3>Score:</h3>
             <h3>Cantidad de vidas:</h3>
         </div>
-    </header>
-    <canvas></canvas>
-  </body>
+        </header>
+        <canvas></canvas>
+    </body>
 
-  <script>
+    <script>
     const canvas = document.querySelector("canvas");
     const context = canvas.getContext("2d");
 
-    // Carga del tablero inicial
-    canvas.width = 1600;
-    canvas.height = 1000;
+    canvas.width = window.innerWidth * 0.6;
+    canvas.height = window.innerHeight * 0.7;
+
     //Posicion de la nave inicial
     const positionXShip = Math.round(canvas.width / 2);
     const positionYShip = Math.round(canvas.height / 2);
     // Dimensiones de la nave
-    const heightShip = 50;
+    const heightShip = 30;
     const widthShip = 15;
-    
+    // Rotacion de nave
+    let shipRotation = 0;
+
     // Cantidad rocas iniciales
     const quantityRocks = 8;
     // Velocidad -> variables constante
@@ -43,13 +47,13 @@
     // Posiciones de las rocas
     var positions = [[]];
     // Velocidad de cada roca
-    var speeds = [[]]
+    var speeds = [[]];
 
     function drawSpaceship() {
         // Seccion mas grande
-        drawSectionShip(heightShip, widthShip, "black");
+        drawSectionShip(heightShip, widthShip, "#fff");
         // Generar seccion mas pequenia
-        drawSectionShip(heightShip / 5, widthShip / 3, "#fff");
+        drawSectionShip(heightShip / 5, widthShip / 3, "black");
     }
 
     // Dibujo de naves y rocas
@@ -62,20 +66,29 @@
             context.strokeRect(positionRockX, positionRockY, 100, 100);
             positions[[i, 0]] += speeds[[i, 0]];
             positions[[i, 1]] += speeds[[i, 1]];
-            verifyLimits(i , positions[[i, 0]] , positions[[i, 1]]);
+            verifyLimits(i, positions[[i, 0]], positions[[i, 1]]);
             context.closePath();
         }
     }
 
     function drawSectionShip(height, width, color) {
+        // Guardar el estado actual 
+        context.save();
+        // Mueve el origen al centro de la nave
+        context.translate(positionXShip , positionYShip - heightShip/2);
+        // Rotacion
+        context.rotate((shipRotation * Math.PI) / 180);
+
         context.beginPath();
         // Dibujar vertice superior
-        context.moveTo(positionXShip, positionYShip - height);
+        context.moveTo(0, 0 - height);
         // Dibujar vertice inferior derecho e izquierdo
-        context.lineTo(positionXShip - width, positionYShip);
-        context.lineTo(positionXShip + width, positionYShip);
-        context.fill();
+        context.lineTo(0 - width, heightShip/2);
+        context.lineTo(0 + width, heightShip/2);
         context.fillStyle = `${color}`;
+        context.fill();
+
+        context.restore();
     }
 
     function countPlayerLife() {}
@@ -92,13 +105,6 @@
         drawSpaceship();
         // Dibujo de las rocas o asteroides
         drawRocks();
-
-        /*
-        setTimeout(() => {
-            console.log("Esto aparece tras 3 segundos");
-        }, 3000);
-        */
-
         // Dibujar la vida de un jugador
         countPlayerLife();
         // Ejecuta  constantemente cada 60 segundos el repintado o la funcion de forma recursiva
@@ -109,55 +115,69 @@
     function generatePositionInitialRock(param) {
         let position = Math.floor(Math.random() * param) + 1;
         if (position > positionXShip + 100 || position < positionXShip - 100) {
-            console.log('Posicion limpia:' + position);
+            console.log("Posicion limpia:" + position);
             return position;
         } else {
             return generatePositionInitialRock(param);
         }
     }
-    
+
     // Generar posiciones y velocidades
-    function calculateVelocityAndPositionInitial(){
-        for (var i = 0; i < quantityRocks; i++) {  
+    function calculateVelocityAndPositionInitial() {
+        for (var i = 0; i < quantityRocks; i++) {
             for (let j = 0; j <= 1; j++) {
-                if( j % 2 == 0){
-                    positions[[i, j]] = generatePositionInitialRock(canvas.width);
-                    if(positions [[i , j]]  < positionXShip){
-                        speeds[[i, j]] = velocity;
-                    }else{
-                        speeds[[i, j]] = velocity * (-1);
-                    }
-                }else{
-                    positions[[i, j]] = generatePositionInitialRock(canvas.height);
-                    if(positions [[i , j]]  < positionYShip){
-                        speeds[[i, j]] = velocity;
-                    }else{
-                        speeds[[i, j]] = velocity * (-1);
-                    }
+            if (j % 2 == 0) {
+                positions[[i, j]] = generatePositionInitialRock(canvas.width);
+                if (positions[[i, j]] < positionXShip) {
+                speeds[[i, j]] = velocity;
+                } else {
+                speeds[[i, j]] = velocity * -1;
                 }
+            } else {
+                positions[[i, j]] = generatePositionInitialRock(canvas.height);
+                if (positions[[i, j]] < positionYShip) {
+                speeds[[i, j]] = velocity;
+                } else {
+                speeds[[i, j]] = velocity * -1;
+                }
+            }
             }
         }
     }
 
     // Verificacion de limites en cada roca y su respectiva posicion
-    function verifyLimits(numberRock, posX , posY ){
-        // Para posicion en X
-        if(posX < 0){
+    function verifyLimits(numberRock, posX, posY) {
+      // Para posicion en X
+        if (posX < 0) {
             positions[[numberRock, 0]] += canvas.width;
-            console.log(positions[[numberRock, 0]]);
-        }else if(posX > canvas.width){
+        } else if (posX > canvas.width) {
             positions[[numberRock, 0]] -= canvas.width;
         }
         // Para posicion en Y
-        if(posY < 0){
+        if (posY < 0) {
             positions[[numberRock, 1]] += canvas.height;
-        }else if(posY > canvas.height){
+        } else if (posY > canvas.height) {
             positions[[numberRock, 1]] -= canvas.height;
         }
     }
 
-    calculateVelocityAndPositionInitial();
-    draw();
+    function rotateShip() {
+        const rotationSpeed = 5; // Grados por tecla
 
-</script>
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") {
+                console.log('Rotacion a la izquierda.')
+                shipRotation -= rotationSpeed;
+            }
+            if (event.key === "ArrowRight") {
+                console.log('Rotacion a la derecha.')
+                shipRotation += rotationSpeed;
+            }
+        });
+    }
+
+    calculateVelocityAndPositionInitial();
+    rotateShip();
+    draw();
+    </script>
 </html>
